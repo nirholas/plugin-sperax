@@ -83,7 +83,7 @@ The plugin provides the following actions:
 - **veSPA**: Vote-escrowed SPA for governance participation
 - **Demeter**: No-code liquidity farm toolkit
 
-### Key Contracts (Arbitrum One)
+### Key Contracts (Arbitrum, Binance Smart Chain (BNB Chain), Ethereum)
 
 | Contract | Address |
 |----------|---------|
