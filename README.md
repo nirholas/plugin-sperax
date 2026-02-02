@@ -86,7 +86,7 @@ The plugin provides the following actions:
 ### Key Contracts (Arbitrum, Binance Smart Chain / BNB Chain)
 
 | Contract | Blockchain | Contract Address |
-|----------|---------|
+|----------|------------|------------------|
 | SPA | BNB Chain | `0x1A9Fd6eC3144Da3Dd6Ea13Ec1C25C58423a379b1` |
 | USDs | Arbitrum | `0xD74f5255D557944cf7Dd0E45FF521520002D5748` |
 | SPA | Arbitrum | `0x5575552988A3A80504bBaeB1311674fCFd40aD4B` |
