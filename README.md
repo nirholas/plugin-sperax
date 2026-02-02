@@ -92,6 +92,7 @@ The plugin provides the following actions:
 | SPA | Arbitrum | `0x5575552988A3A80504bBaeB1311674fCFd40aD4B` |
 | veSPA | Arbitrum | `0x2e2071180682Ce6C247B1eF93d382D509F5F6A17` |
 | Vault | Arbitrum | `0x6Bbc476Ee35CBA9e9c3A59fc5b10d7a0BC6f74Ca` |
+| SPA | Ethereum | `0xB4A3B0Faf0Ab53df58001804DdA5Bfc6a3D59008` |
 
 
 ## Development
