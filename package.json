@@ -1,0 +1,73 @@
+{
+  "name": "@elizaos/plugin-sperax",
+  "version": "1.0.0",
+  "description": "Sperax DeFi plugin for ElizaOS - USDs stablecoin, SPA governance, and yield farming on Arbitrum",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "bun test",
+    "test:e2e": "elizaos test --type e2e"
+  },
+  "keywords": [
+    "elizaos",
+    "plugin",
+    "sperax",
+    "usds",
+    "spa",
+    "stablecoin",
+    "defi",
+    "arbitrum",
+    "yield",
+    "web3"
+  ],
+  "author": "Sperax Community",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elizaos-plugins/plugin-sperax"
+  },
+  "dependencies": {
+    "viem": "^2.21.0",
+    "zod": "^3.23.0"
+  },
+  "peerDependencies": {
+    "@elizaos/core": "^1.0.0"
+  },
+  "devDependencies": {
+    "@elizaos/core": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "agentConfig": {
+    "pluginType": "elizaos:plugin:1.0.0",
+    "pluginParameters": {
+      "ARBITRUM_RPC_URL": {
+        "type": "string",
+        "description": "Arbitrum One RPC endpoint URL",
+        "required": false,
+        "default": "https://arb1.arbitrum.io/rpc"
+      },
+      "SPERAX_PRIVATE_KEY": {
+        "type": "string",
+        "description": "Private key for signing Sperax transactions (optional, for write operations)",
+        "required": false,
+        "secret": true
+      }
+    }
+  }
+}
