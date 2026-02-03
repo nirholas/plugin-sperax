@@ -6,6 +6,7 @@ import type {
   Action,
   ActionResult,
   HandlerCallback,
+  HandlerOptions,
   IAgentRuntime,
   Memory,
   State,
@@ -14,6 +15,11 @@ import { parseUnits, formatUnits } from 'viem';
 import { SperaxService } from '../services/SperaxService';
 import type { CollateralToken } from '../types';
 import { COLLATERAL_TOKENS } from '../types';
+
+// Helper to safely call callback
+const safeCallback = async (callback: HandlerCallback | undefined, data: Parameters<HandlerCallback>[0]) => {
+  if (callback) await callback(data);
+};
 
 /**
  * Get USDs Balance Action
@@ -42,9 +48,9 @@ export const getUSDsBalanceAction: Action = {
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    state: State,
-    options: Record<string, unknown>,
-    callback: HandlerCallback
+    state: State | undefined,
+    options: HandlerOptions | undefined,
+    callback?: HandlerCallback
   ): Promise<ActionResult> => {
     try {
       const service = runtime.getService<SperaxService>('sperax');
@@ -58,7 +64,7 @@ export const getUSDsBalanceAction: Action = {
       const address = addressMatch?.[0] || service.getWalletAddress();
 
       if (!address) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Please provide an Ethereum address to check, or configure SPERAX_PRIVATE_KEY to check your own balance.',
           action: 'SPERAX_GET_USDS_BALANCE',
         });
@@ -77,7 +83,7 @@ ${balance.isRebaseOptedIn ? '✅' : '❌'} **Auto-Yield:** ${balance.isRebaseOpt
 ${!balance.isRebaseOptedIn ? '_Tip: Enable auto-yield to earn passive income on your USDs!_' : ''}
       `.trim();
 
-      await callback({
+      await safeCallback(callback, {
         text: responseText,
         action: 'SPERAX_GET_USDS_BALANCE',
       });
@@ -93,7 +99,7 @@ ${!balance.isRebaseOptedIn ? '_Tip: Enable auto-yield to earn passive income on 
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await callback({
+      await safeCallback(callback, {
         text: `Failed to get USDs balance: ${errorMsg}`,
         action: 'SPERAX_GET_USDS_BALANCE',
       });
@@ -135,9 +141,9 @@ export const getSPABalanceAction: Action = {
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    state: State,
-    options: Record<string, unknown>,
-    callback: HandlerCallback
+    state: State | undefined,
+    options: HandlerOptions | undefined,
+    callback?: HandlerCallback
   ): Promise<ActionResult> => {
     try {
       const service = runtime.getService<SperaxService>('sperax');
@@ -150,7 +156,7 @@ export const getSPABalanceAction: Action = {
       const address = addressMatch?.[0] || service.getWalletAddress();
 
       if (!address) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Please provide an Ethereum address to check.',
           action: 'SPERAX_GET_SPA_BALANCE',
         });
@@ -173,7 +179,7 @@ export const getSPABalanceAction: Action = {
 _Stake SPA to earn veSPA and participate in governance!_
       `.trim();
 
-      await callback({
+      await safeCallback(callback, {
         text: responseText,
         action: 'SPERAX_GET_SPA_BALANCE',
       });
@@ -189,7 +195,7 @@ _Stake SPA to earn veSPA and participate in governance!_
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await callback({
+      await safeCallback(callback, {
         text: `Failed to get SPA balance: ${errorMsg}`,
         action: 'SPERAX_GET_SPA_BALANCE',
       });
@@ -232,9 +238,9 @@ export const getProtocolInfoAction: Action = {
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    state: State,
-    options: Record<string, unknown>,
-    callback: HandlerCallback
+    state: State | undefined,
+    options: HandlerOptions | undefined,
+    callback?: HandlerCallback
   ): Promise<ActionResult> => {
     try {
       const service = runtime.getService<SperaxService>('sperax');
@@ -262,7 +268,7 @@ ${collateralList}
 _USDs is 100% backed by stablecoins on Arbitrum_
       `.trim();
 
-      await callback({
+      await safeCallback(callback, {
         text: responseText,
         action: 'SPERAX_GET_PROTOCOL_INFO',
       });
@@ -278,7 +284,7 @@ _USDs is 100% backed by stablecoins on Arbitrum_
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await callback({
+      await safeCallback(callback, {
         text: `Failed to get protocol info: ${errorMsg}`,
         action: 'SPERAX_GET_PROTOCOL_INFO',
       });
@@ -324,9 +330,9 @@ export const mintUSDsAction: Action = {
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    state: State,
-    options: Record<string, unknown>,
-    callback: HandlerCallback
+    state: State | undefined,
+    options: HandlerOptions | undefined,
+    callback?: HandlerCallback
   ): Promise<ActionResult> => {
     try {
       const service = runtime.getService<SperaxService>('sperax');
@@ -335,7 +341,7 @@ export const mintUSDsAction: Action = {
       }
 
       if (!service.hasWallet()) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Minting requires a configured wallet. Please set SPERAX_PRIVATE_KEY in your environment.',
           action: 'SPERAX_MINT_USDS',
         });
@@ -345,7 +351,7 @@ export const mintUSDsAction: Action = {
       const text = message.content.text || '';
       
       // Parse amount and collateral type
-      const amountMatch = text.match(/(\d+(?:\.\d+)?)/);
+      const amountMatch = text.match(/(\d+(?:\.\d+)?)/);  
       const amount = amountMatch ? parseFloat(amountMatch[1]) : null;
       
       let collateral: CollateralToken = 'USDC';
@@ -353,7 +359,7 @@ export const mintUSDsAction: Action = {
       else if (text.toLowerCase().includes('usdc.e')) collateral = 'USDC.e';
 
       if (!amount) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Please specify an amount to mint. Example: "mint 100 USDs with USDC"',
           action: 'SPERAX_MINT_USDS',
         });
@@ -368,7 +374,7 @@ export const mintUSDsAction: Action = {
       });
 
       if (result.success) {
-        await callback({
+        await safeCallback(callback, {
           text: `✅ Successfully minted USDs!\n\n💰 Amount: ${amount} USDs\n📝 Collateral: ${collateral}\n🔗 Tx: ${result.txHash}`,
           action: 'SPERAX_MINT_USDS',
         });
@@ -378,7 +384,7 @@ export const mintUSDsAction: Action = {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await callback({
+      await safeCallback(callback, {
         text: `Failed to mint USDs: ${errorMsg}`,
         action: 'SPERAX_MINT_USDS',
       });
@@ -420,9 +426,9 @@ export const redeemUSDsAction: Action = {
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    state: State,
-    options: Record<string, unknown>,
-    callback: HandlerCallback
+    state: State | undefined,
+    options: HandlerOptions | undefined,
+    callback?: HandlerCallback
   ): Promise<ActionResult> => {
     try {
       const service = runtime.getService<SperaxService>('sperax');
@@ -431,7 +437,7 @@ export const redeemUSDsAction: Action = {
       }
 
       if (!service.hasWallet()) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Redeeming requires a configured wallet. Please set SPERAX_PRIVATE_KEY in your environment.',
           action: 'SPERAX_REDEEM_USDS',
         });
@@ -440,7 +446,7 @@ export const redeemUSDsAction: Action = {
 
       const text = message.content.text || '';
       
-      const amountMatch = text.match(/(\d+(?:\.\d+)?)/);
+      const amountMatch = text.match(/(\d+(?:\.\d+)?)/);  
       const amount = amountMatch ? parseFloat(amountMatch[1]) : null;
       
       let collateral: CollateralToken = 'USDC';
@@ -448,7 +454,7 @@ export const redeemUSDsAction: Action = {
       else if (text.toLowerCase().includes('usdc.e')) collateral = 'USDC.e';
 
       if (!amount) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Please specify an amount to redeem. Example: "redeem 100 USDs for USDC"',
           action: 'SPERAX_REDEEM_USDS',
         });
@@ -467,7 +473,7 @@ export const redeemUSDsAction: Action = {
 
       if (result.success) {
         const receivedAmount = formatUnits(quote.collateralAmount, 6);
-        await callback({
+        await safeCallback(callback, {
           text: `✅ Successfully redeemed USDs!\n\n💰 Redeemed: ${amount} USDs\n💵 Received: ~${receivedAmount} ${collateral}\n📝 Fee: ${formatUnits(quote.fee, 18)} USDs\n🔗 Tx: ${result.txHash}`,
           action: 'SPERAX_REDEEM_USDS',
         });
@@ -477,7 +483,7 @@ export const redeemUSDsAction: Action = {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await callback({
+      await safeCallback(callback, {
         text: `Failed to redeem USDs: ${errorMsg}`,
         action: 'SPERAX_REDEEM_USDS',
       });
@@ -519,9 +525,9 @@ export const optInRebaseAction: Action = {
   handler: async (
     runtime: IAgentRuntime,
     message: Memory,
-    state: State,
-    options: Record<string, unknown>,
-    callback: HandlerCallback
+    state: State | undefined,
+    options: HandlerOptions | undefined,
+    callback?: HandlerCallback
   ): Promise<ActionResult> => {
     try {
       const service = runtime.getService<SperaxService>('sperax');
@@ -530,7 +536,7 @@ export const optInRebaseAction: Action = {
       }
 
       if (!service.hasWallet()) {
-        await callback({
+        await safeCallback(callback, {
           text: 'Opting in to rebase requires a configured wallet. Please set SPERAX_PRIVATE_KEY.',
           action: 'SPERAX_OPT_IN_REBASE',
         });
@@ -540,7 +546,7 @@ export const optInRebaseAction: Action = {
       const result = await service.optInToRebase();
 
       if (result.success) {
-        await callback({
+        await safeCallback(callback, {
           text: `✅ Successfully opted in to USDs auto-yield!\n\nYour USDs balance will now automatically grow every ~24 hours.\n🔗 Tx: ${result.txHash}`,
           action: 'SPERAX_OPT_IN_REBASE',
         });
@@ -550,7 +556,7 @@ export const optInRebaseAction: Action = {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await callback({
+      await safeCallback(callback, {
         text: `Failed to opt in to rebase: ${errorMsg}`,
         action: 'SPERAX_OPT_IN_REBASE',
       });

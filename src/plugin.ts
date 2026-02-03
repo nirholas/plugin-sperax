@@ -75,7 +75,7 @@ export const speraxPlugin: Plugin = {
       logger.info(`Wallet: ${validatedConfig.SPERAX_PRIVATE_KEY ? 'Configured' : 'Read-only mode'}`);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        logger.warn('Sperax plugin config validation warnings:', error.errors);
+        logger.warn(`Sperax plugin config validation warnings: ${JSON.stringify(error.errors)}`);
       }
     }
 

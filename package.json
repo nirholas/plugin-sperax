@@ -19,7 +19,8 @@
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "lint": "eslint src --ext .ts",
-    "test": "bun test",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:e2e": "elizaos test --type e2e"
   },
   "keywords": [
@@ -51,7 +52,8 @@
     "@elizaos/core": "^1.0.0",
     "@types/node": "^20.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^1.6.0"
   },
   "agentConfig": {
     "pluginType": "elizaos:plugin:1.0.0",

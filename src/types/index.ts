@@ -3,22 +3,16 @@
  * Arbitrum-based DeFi protocol with USDs stablecoin and SPA governance
  */
 
-// Contract Addresses on Arbitrum One
+// Contract Addresses on Arbitrum One (EIP-55 checksummed)
+// Verified against: https://docs.sperax.io/contract-addresses
 export const SPERAX_CONTRACTS = {
   // Core Protocol
   USDs: '0xD74f5255D557944cf7Dd0E45FF521520002D5748' as const,
   SPA: '0x5575552988A3A80504bBaeB1311674fCFd40aD4B' as const,
   veSPA: '0x2e2071180682Ce6C247B1eF93d382D509F5F6A17' as const,
   
-  // Vault & Collateral
+  // Vault & Collateral  
   Vault: '0x6Bbc476Ee35CBA9e9c3A59fc5b10d7a0BC6f74Ca' as const,
-  CollateralManager: '0x15E5D5c77890d3E3c8aba2B22B0F6F1490e29Ee3' as const,
-  
-  // Demeter Farms
-  DemeterFactory: '0x89f25e040F2d54E9a0Bc1c2b0E1E7bE6ceC4fE1A' as const,
-  
-  // Price Oracle
-  Oracle: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419' as const,
 } as const;
 
 // Supported Collateral Tokens
@@ -107,8 +101,9 @@ export interface RebaseInfo {
   totalYieldDistributed: string;
 }
 
-// Plugin Configuration
+// Plugin Configuration - extends Metadata interface from @elizaos/core
 export interface SperaxPluginConfig {
   ARBITRUM_RPC_URL?: string;
   SPERAX_PRIVATE_KEY?: string;
+  [key: string]: string | undefined;
 }

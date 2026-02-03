@@ -54,14 +54,23 @@ const ERC20_ABI = [
 
 export class SperaxService extends Service {
   static serviceType = 'sperax';
+  capabilityDescription = 'Provides interaction with Sperax Protocol (USDs stablecoin, SPA governance) on Arbitrum';
   
   private publicClient: ReturnType<typeof createPublicClient> | null = null;
   private walletClient: ReturnType<typeof createWalletClient> | null = null;
   private account: ReturnType<typeof privateKeyToAccount> | null = null;
-  private config: SperaxPluginConfig = {};
+  public config: SperaxPluginConfig = {};
 
   constructor() {
     super();
+  }
+
+  async stop(): Promise<void> {
+    // Clean up any resources
+    this.publicClient = null;
+    this.walletClient = null;
+    this.account = null;
+    logger.info('Sperax Service stopped');
   }
 
   async initialize(runtime: IAgentRuntime): Promise<void> {
@@ -132,7 +141,8 @@ export class SperaxService extends Service {
   async getSPABalance(address: string): Promise<SPABalance> {
     if (!this.publicClient) throw new Error('Service not initialized');
     
-    const [spaBalance, veSpBalance, locked] = await Promise.all([
+    // Fetch balances in parallel
+    const [spaBalance, veSpBalance] = await Promise.all([
       this.publicClient.readContract({
         address: SPERAX_CONTRACTS.SPA,
         abi: SPA_ABI,
@@ -145,13 +155,22 @@ export class SperaxService extends Service {
         functionName: 'balanceOf',
         args: [address as `0x${string}`],
       }),
-      this.publicClient.readContract({
+    ]);
+    
+    // locked() can revert for addresses with no lock, so handle gracefully
+    let lockEndTime: number | null = null;
+    try {
+      const locked = await this.publicClient.readContract({
         address: SPERAX_CONTRACTS.veSPA,
         abi: VESPA_ABI,
         functionName: 'locked',
         args: [address as `0x${string}`],
-      }),
-    ]);
+      });
+      lockEndTime = locked[1] > 0 ? Number(locked[1]) : null;
+    } catch {
+      // No lock exists for this address - this is expected for most users
+      lockEndTime = null;
+    }
     
     return {
       spaBalance,
@@ -159,7 +178,7 @@ export class SperaxService extends Service {
       veSpBalance,
       formattedVeSpBalance: formatUnits(veSpBalance, 18),
       votingPower: formatUnits(veSpBalance, 18),
-      lockEndTime: locked[1] > 0 ? Number(locked[1]) : null,
+      lockEndTime,
     };
   }
 
@@ -218,6 +237,8 @@ export class SperaxService extends Service {
       
       // Approve collateral spending first
       const approveHash = await this.walletClient.writeContract({
+        account: this.account,
+        chain: arbitrum,
         address: collateralAddress,
         abi: ERC20_ABI,
         functionName: 'approve',
@@ -228,6 +249,8 @@ export class SperaxService extends Service {
       
       // Mint USDs
       const mintHash = await this.walletClient.writeContract({
+        account: this.account,
+        chain: arbitrum,
         address: SPERAX_CONTRACTS.Vault,
         abi: VAULT_ABI,
         functionName: 'mint',
@@ -238,12 +261,13 @@ export class SperaxService extends Service {
       
       return {
         success: true,
-        txHash: mintHash,
+        txHash: mintHash as string,
         gasUsed: receipt.gasUsed,
       };
     } catch (error) {
-      logger.error('Mint USDs failed:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Mint USDs failed:', errorMsg);
+      return { success: false, error: errorMsg };
     }
   }
 
@@ -259,6 +283,8 @@ export class SperaxService extends Service {
       const collateralAddress = COLLATERAL_TOKENS[params.collateral];
       
       const redeemHash = await this.walletClient.writeContract({
+        account: this.account,
+        chain: arbitrum,
         address: SPERAX_CONTRACTS.Vault,
         abi: VAULT_ABI,
         functionName: 'redeem',
@@ -269,12 +295,13 @@ export class SperaxService extends Service {
       
       return {
         success: true,
-        txHash: redeemHash,
+        txHash: redeemHash as string,
         gasUsed: receipt.gasUsed,
       };
     } catch (error) {
-      logger.error('Redeem USDs failed:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Redeem USDs failed:', errorMsg);
+      return { success: false, error: errorMsg };
     }
   }
 
@@ -288,6 +315,8 @@ export class SperaxService extends Service {
     
     try {
       const hash = await this.walletClient.writeContract({
+        account: this.account,
+        chain: arbitrum,
         address: SPERAX_CONTRACTS.USDs,
         abi: USDS_ABI,
         functionName: 'rebaseOptIn',
@@ -298,12 +327,13 @@ export class SperaxService extends Service {
       
       return {
         success: true,
-        txHash: hash,
+        txHash: hash as string,
         gasUsed: receipt.gasUsed,
       };
     } catch (error) {
-      logger.error('Rebase opt-in failed:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      logger.error('Rebase opt-in failed:', errorMsg);
+      return { success: false, error: errorMsg };
     }
   }
 
