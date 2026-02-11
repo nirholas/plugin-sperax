@@ -1,0 +1,9 @@
+# plugin-sperax
+
+> Crypto plugin for ElizaOS Plugin Registry
+
+## Links
+
+- Repository: https://github.com/nirholas/plugin-sperax
+- Author: https://github.com/nirholas
+- Full documentation: https://raw.githubusercontent.com/nirholas/plugin-sperax/main/llms-full.txt

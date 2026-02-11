@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use plugin-sperax, please cite it as below."
+type: software
+title: "plugin-sperax"
+abstract: "Crypto plugin for ElizaOS Plugin Registry"
+authors:
+  - alias: nirholas
+    name: nirholas
+repository-code: "https://github.com/nirholas/plugin-sperax"
+url: "https://github.com/nirholas/plugin-sperax"
+license: MIT
+version: "1.0.0"
+date-released: "2026-02-11"
+keywords:
+  - open-source
+  - nirholas

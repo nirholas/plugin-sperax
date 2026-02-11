@@ -1,0 +1,14 @@
+{
+    "name": "plugin-sperax",
+    "description": "Crypto plugin for ElizaOS Plugin Registry",
+    "version": "1.0.0",
+    "publisher": "nirholas",
+    "repository": "https://github.com/nirholas/plugin-sperax",
+    "language": "TypeScript",
+    "topics": [
+        "nirholas",
+        "open-source",
+        "sperax",
+        "plugin"
+    ]
+}

@@ -1,0 +1,18 @@
+# plugin-sperax
+
+> Crypto plugin for ElizaOS Plugin Registry
+
+## Overview
+
+plugin-sperax is an open-source project by nirholas. Crypto plugin for ElizaOS Plugin Registry
+
+## Repository
+
+- URL: https://github.com/nirholas/plugin-sperax
+- Language: TypeScript
+- License: MIT
+- Author: nirholas
+
+## Contributing
+
+Contributions are welcome. See CONTRIBUTING.md for guidelines.
