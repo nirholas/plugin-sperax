@@ -121,3 +121,7 @@ MIT
 - [Sperax Docs](https://docs.sperax.io)
 - [Sperax App](https://app.sperax.io)
 - [ElizaOS](https://elizaos.ai)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=nirholas/plugin-sperax&type=Date)](https://star-history.com/#nirholas/plugin-sperax&Date)
