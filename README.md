@@ -1,5 +1,5 @@
 # @elizaos/plugin-sperax
-
+ 
 Sperax DeFi Plugin for ElizaOS - Enables AI agents to interact with the Sperax Protocol on Arbitrum.
 
 ## Features
